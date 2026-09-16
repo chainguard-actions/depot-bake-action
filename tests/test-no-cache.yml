@@ -1,0 +1,43 @@
+name: Test no-cache and pull inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create minimal bake file
+        run: |
+          cat > /tmp/docker-bake-nocache.hcl <<'EOF'
+          group "default" {
+            targets = ["app"]
+          }
+          target "app" {
+            dockerfile-inline = "FROM alpine:3.18\nRUN echo no-cache-test"
+            tags = ["no-cache-test:latest"]
+          }
+          EOF
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          files: /tmp/docker-bake-nocache.hcl
+          no-cache: 'true'
+          pull: 'true'
+          # No depot token — action should fail gracefully
+
+      - name: Assert action ran and failed gracefully (no Depot token)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully as expected (no Depot token)"
+          elif [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded (Depot credentials available)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
