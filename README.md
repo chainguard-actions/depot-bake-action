@@ -8,6 +8,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
+| v1.11.0 | [`v1.11.0`](https://github.com/chainguard-actions/depot-bake-action/tree/v1.11.0) | [`58d7160`](https://github.com/depot/bake-action/commit/58d7160c6bfa64eb85e384209e6f2f5ad17948bb) |
 | v1.11.1 | [`v1.11.1`](https://github.com/chainguard-actions/depot-bake-action/tree/v1.11.1) | [`6f9796e`](https://github.com/depot/bake-action/commit/6f9796efa5235be338972e30e7b93977a7f18855) |
 
 ## Privacy
