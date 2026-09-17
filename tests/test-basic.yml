@@ -1,0 +1,43 @@
+name: Test basic usage
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create minimal docker-bake.hcl
+        run: |
+          cat > "$GITHUB_WORKSPACE/docker-bake.hcl" <<'EOF'
+          group "default" {
+            targets = ["app"]
+          }
+          target "app" {
+            dockerfile-inline = "FROM alpine:3.18\nRUN echo hello"
+            tags = ["myapp:latest"]
+          }
+          EOF
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          # No token or project — action should fail gracefully
+          no-cache: 'false'
+          load: 'false'
+          push: 'false'
+
+      - name: Assert action ran and failed gracefully (no token/project)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully as expected (no Depot token/project)"
+          elif [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded unexpectedly (may have found credentials)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

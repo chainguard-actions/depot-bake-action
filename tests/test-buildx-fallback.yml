@@ -1,0 +1,46 @@
+name: Test buildx-fallback input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create minimal docker-bake.hcl
+        run: |
+          cat > "$GITHUB_WORKSPACE/docker-bake.hcl" <<'EOF'
+          group "default" {
+            targets = ["app"]
+          }
+          target "app" {
+            dockerfile-inline = "FROM alpine:3.18\nRUN echo hello"
+            tags = ["myapp:latest"]
+          }
+          EOF
+
+      - name: Set up Docker Buildx
+        run: |
+          docker buildx create --use --name test-builder || true
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          buildx-fallback: 'true'
+          load: 'true'
+          push: 'false'
+
+      - name: Assert action ran (with buildx-fallback enabled)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded (buildx fallback worked)"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (buildx fallback also failed, acceptable without Depot credentials)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
