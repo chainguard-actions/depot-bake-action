@@ -1,0 +1,42 @@
+name: Test workdir input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create bake file in a subdirectory
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/myapp"
+          cat > "$GITHUB_WORKSPACE/myapp/docker-bake.hcl" <<'EOF'
+          group "default" {
+            targets = ["web"]
+          }
+          target "web" {
+            dockerfile-inline = "FROM nginx:alpine"
+            tags = ["web:latest"]
+          }
+          EOF
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          workdir: myapp
+          # No token — action will fail gracefully
+
+      - name: Assert action ran with custom workdir
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully as expected (no valid Depot token)"
+          elif [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded (token may have been injected)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

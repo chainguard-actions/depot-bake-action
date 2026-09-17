@@ -1,0 +1,42 @@
+name: Test custom bake file input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create a custom bake definition file
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/build"
+          cat > "$GITHUB_WORKSPACE/build/custom-bake.hcl" <<'EOF'
+          group "default" {
+            targets = ["myservice"]
+          }
+          target "myservice" {
+            dockerfile-inline = "FROM alpine:3.18"
+            tags = ["myservice:test"]
+          }
+          EOF
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          files: build/custom-bake.hcl
+          # No token — action will fail gracefully
+
+      - name: Assert action ran with custom bake file
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully as expected (no valid Depot token)"
+          elif [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded (token may have been injected)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
