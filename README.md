@@ -10,6 +10,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 |---------|-----|-----------------|
 | v1.11.0 | [`v1.11.0`](https://github.com/chainguard-actions/depot-bake-action/tree/v1.11.0) | [`58d7160`](https://github.com/depot/bake-action/commit/58d7160c6bfa64eb85e384209e6f2f5ad17948bb) |
 | v1.11.1 | [`v1.11.1`](https://github.com/chainguard-actions/depot-bake-action/tree/v1.11.1) | [`6f9796e`](https://github.com/depot/bake-action/commit/6f9796efa5235be338972e30e7b93977a7f18855) |
+| v1.12.0 | [`v1.12.0`](https://github.com/chainguard-actions/depot-bake-action/tree/v1.12.0) | [`775221a`](https://github.com/depot/bake-action/commit/775221a17c8fe92e96f5f7c406ffd4a5609fd5a3) |
 | v1.12.1 | [`v1.12.1`](https://github.com/chainguard-actions/depot-bake-action/tree/v1.12.1) | [`2ae2529`](https://github.com/depot/bake-action/commit/2ae2529115bba41de62b77b345de48d57eca7564) |
 | v1.13.0 | [`v1.13.0`](https://github.com/chainguard-actions/depot-bake-action/tree/v1.13.0) | [`1d58c26`](https://github.com/depot/bake-action/commit/1d58c2668346981089b088b7ef36755b206b20e9) |
 
